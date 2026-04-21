@@ -1,0 +1,122 @@
+[
+  {
+    "id": "role_data_engineer_senior",
+    "title": "Senior Data Engineer",
+    "domain": "data engineering",
+    "description": "Designs, builds, and maintains large-scale data pipelines and infrastructure. Works with distributed systems and cloud platforms.",
+    "required_skills": ["python", "sql", "spark", "airflow", "data modeling", "etl", "data warehousing"],
+    "preferred_skills": ["kafka", "docker", "kubernetes", "dbt", "bigquery", "snowflake", "terraform"]
+  },
+  {
+    "id": "role_data_engineer_junior",
+    "title": "Junior Data Engineer",
+    "domain": "data engineering",
+    "description": "Builds and maintains data pipelines under senior guidance. Writes SQL and Python scripts for data transformation.",
+    "required_skills": ["python", "sql", "etl", "data pipelines"],
+    "preferred_skills": ["spark", "airflow", "cloud platforms", "git"]
+  },
+  {
+    "id": "role_ml_engineer",
+    "title": "Machine Learning Engineer",
+    "domain": "machine learning",
+    "description": "Deploys machine learning models into production. Bridges gap between data science and software engineering.",
+    "required_skills": ["python", "machine learning", "tensorflow", "pytorch", "mlops", "docker", "rest apis"],
+    "preferred_skills": ["kubernetes", "spark", "feature stores", "airflow", "ray", "mlflow"]
+  },
+  {
+    "id": "role_data_scientist",
+    "title": "Data Scientist",
+    "domain": "data science",
+    "description": "Builds predictive models and derives insights from large datasets. Uses statistical methods and machine learning.",
+    "required_skills": ["python", "machine learning", "statistics", "sql", "pandas", "scikit-learn"],
+    "preferred_skills": ["tensorflow", "pytorch", "spark", "tableau", "r", "deep learning"]
+  },
+  {
+    "id": "role_software_engineer_backend",
+    "title": "Backend Software Engineer",
+    "domain": "software engineering",
+    "description": "Designs and implements server-side application logic, APIs, and databases.",
+    "required_skills": ["python", "java", "rest apis", "sql", "system design", "git"],
+    "preferred_skills": ["docker", "kubernetes", "microservices", "redis", "kafka", "aws"]
+  },
+  {
+    "id": "role_software_engineer_fullstack",
+    "title": "Full Stack Engineer",
+    "domain": "software engineering",
+    "description": "Develops both frontend and backend components of web applications.",
+    "required_skills": ["javascript", "react", "node.js", "python", "sql", "rest apis", "html", "css"],
+    "preferred_skills": ["typescript", "docker", "aws", "graphql", "redis"]
+  },
+  {
+    "id": "role_devops_engineer",
+    "title": "DevOps Engineer",
+    "domain": "infrastructure",
+    "description": "Automates infrastructure provisioning, CI/CD pipelines, and maintains platform reliability.",
+    "required_skills": ["docker", "kubernetes", "terraform", "ci/cd", "linux", "bash", "git"],
+    "preferred_skills": ["ansible", "helm", "prometheus", "grafana", "aws", "gcp", "azure"]
+  },
+  {
+    "id": "role_cloud_engineer",
+    "title": "Cloud Engineer",
+    "domain": "cloud infrastructure",
+    "description": "Architects and manages cloud infrastructure across AWS, GCP, or Azure.",
+    "required_skills": ["aws", "terraform", "networking", "iam", "cloud architecture", "linux"],
+    "preferred_skills": ["kubernetes", "docker", "python", "cost optimization", "security"]
+  },
+  {
+    "id": "role_analytics_engineer",
+    "title": "Analytics Engineer",
+    "domain": "data analytics",
+    "description": "Transforms raw data into clean, well-documented datasets for analysts and data scientists using dbt and SQL.",
+    "required_skills": ["sql", "dbt", "data modeling", "analytics", "python"],
+    "preferred_skills": ["bigquery", "snowflake", "looker", "airflow", "git"]
+  },
+  {
+    "id": "role_data_analyst",
+    "title": "Data Analyst",
+    "domain": "data analytics",
+    "description": "Analyzes data to provide business insights. Creates dashboards and reports.",
+    "required_skills": ["sql", "excel", "data visualization", "statistics", "tableau"],
+    "preferred_skills": ["python", "power bi", "r", "looker", "google analytics"]
+  },
+  {
+    "id": "role_ai_engineer",
+    "title": "AI Engineer",
+    "domain": "artificial intelligence",
+    "description": "Builds AI-powered applications and integrations using LLMs, RAG, and agent frameworks.",
+    "required_skills": ["python", "llms", "langchain", "prompt engineering", "rest apis", "vector databases"],
+    "preferred_skills": ["rag", "fine-tuning", "hugging face", "fastapi", "docker", "embedding models"]
+  },
+  {
+    "id": "role_platform_engineer",
+    "title": "Platform Engineer",
+    "domain": "infrastructure",
+    "description": "Builds internal developer platforms that improve engineering productivity and reliability.",
+    "required_skills": ["kubernetes", "docker", "ci/cd", "python", "terraform", "observability"],
+    "preferred_skills": ["backstage", "helm", "argocd", "prometheus", "grafana"]
+  },
+  {
+    "id": "role_data_architect",
+    "title": "Data Architect",
+    "domain": "data engineering",
+    "description": "Designs enterprise-scale data architecture, governance frameworks, and technology strategy for data platforms.",
+    "required_skills": ["data modeling", "data warehousing", "sql", "cloud platforms", "system design", "data governance"],
+    "preferred_skills": ["spark", "kafka", "snowflake", "databricks", "dbt", "data mesh"]
+  },
+  {
+    "id": "role_research_engineer",
+    "title": "Research Engineer / Applied Scientist",
+    "domain": "machine learning",
+    "description": "Conducts applied ML research and translates research findings into production systems.",
+    "required_skills": ["python", "pytorch", "deep learning", "research", "machine learning", "statistics"],
+    "preferred_skills": ["cuda", "distributed training", "transformers", "hugging face", "mlflow"]
+  },
+  {
+    "id": "role_security_engineer",
+    "title": "Security Engineer",
+    "domain": "security",
+    "description": "Designs and implements security controls, performs threat modeling, and responds to incidents.",
+    "required_skills": ["network security", "iam", "cryptography", "linux", "python", "vulnerability assessment"],
+    "preferred_skills": ["aws security", "siem", "penetration testing", "zero trust", "devsecops"]
+  }
+]

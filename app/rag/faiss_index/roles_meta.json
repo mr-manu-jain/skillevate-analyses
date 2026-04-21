@@ -1,0 +1,77 @@
+[
+  {
+    "document": "Role: Senior Data Engineer | Domain: data engineering | Description: Designs, builds, and maintains large-scale data pipelines and infrastructure. Works with distributed systems and cloud platforms. | Required skills: python, sql, spark, airflow, data modeling, etl, data warehousing | Preferred skills: kafka, docker, kubernetes, dbt, bigquery, snowflake, terraform",
+    "title": "Senior Data Engineer",
+    "domain": "data engineering"
+  },
+  {
+    "document": "Role: Junior Data Engineer | Domain: data engineering | Description: Builds and maintains data pipelines under senior guidance. Writes SQL and Python scripts for data transformation. | Required skills: python, sql, etl, data pipelines | Preferred skills: spark, airflow, cloud platforms, git",
+    "title": "Junior Data Engineer",
+    "domain": "data engineering"
+  },
+  {
+    "document": "Role: Machine Learning Engineer | Domain: machine learning | Description: Deploys machine learning models into production. Bridges gap between data science and software engineering. | Required skills: python, machine learning, tensorflow, pytorch, mlops, docker, rest apis | Preferred skills: kubernetes, spark, feature stores, airflow, ray, mlflow",
+    "title": "Machine Learning Engineer",
+    "domain": "machine learning"
+  },
+  {
+    "document": "Role: Data Scientist | Domain: data science | Description: Builds predictive models and derives insights from large datasets. Uses statistical methods and machine learning. | Required skills: python, machine learning, statistics, sql, pandas, scikit-learn | Preferred skills: tensorflow, pytorch, spark, tableau, r, deep learning",
+    "title": "Data Scientist",
+    "domain": "data science"
+  },
+  {
+    "document": "Role: Backend Software Engineer | Domain: software engineering | Description: Designs and implements server-side application logic, APIs, and databases. | Required skills: python, java, rest apis, sql, system design, git | Preferred skills: docker, kubernetes, microservices, redis, kafka, aws",
+    "title": "Backend Software Engineer",
+    "domain": "software engineering"
+  },
+  {
+    "document": "Role: Full Stack Engineer | Domain: software engineering | Description: Develops both frontend and backend components of web applications. | Required skills: javascript, react, node.js, python, sql, rest apis, html, css | Preferred skills: typescript, docker, aws, graphql, redis",
+    "title": "Full Stack Engineer",
+    "domain": "software engineering"
+  },
+  {
+    "document": "Role: DevOps Engineer | Domain: infrastructure | Description: Automates infrastructure provisioning, CI/CD pipelines, and maintains platform reliability. | Required skills: docker, kubernetes, terraform, ci/cd, linux, bash, git | Preferred skills: ansible, helm, prometheus, grafana, aws, gcp, azure",
+    "title": "DevOps Engineer",
+    "domain": "infrastructure"
+  },
+  {
+    "document": "Role: Cloud Engineer | Domain: cloud infrastructure | Description: Architects and manages cloud infrastructure across AWS, GCP, or Azure. | Required skills: aws, terraform, networking, iam, cloud architecture, linux | Preferred skills: kubernetes, docker, python, cost optimization, security",
+    "title": "Cloud Engineer",
+    "domain": "cloud infrastructure"
+  },
+  {
+    "document": "Role: Analytics Engineer | Domain: data analytics | Description: Transforms raw data into clean, well-documented datasets for analysts and data scientists using dbt and SQL. | Required skills: sql, dbt, data modeling, analytics, python | Preferred skills: bigquery, snowflake, looker, airflow, git",
+    "title": "Analytics Engineer",
+    "domain": "data analytics"
+  },
+  {
+    "document": "Role: Data Analyst | Domain: data analytics | Description: Analyzes data to provide business insights. Creates dashboards and reports. | Required skills: sql, excel, data visualization, statistics, tableau | Preferred skills: python, power bi, r, looker, google analytics",
+    "title": "Data Analyst",
+    "domain": "data analytics"
+  },
+  {
+    "document": "Role: AI Engineer | Domain: artificial intelligence | Description: Builds AI-powered applications and integrations using LLMs, RAG, and agent frameworks. | Required skills: python, llms, langchain, prompt engineering, rest apis, vector databases | Preferred skills: rag, fine-tuning, hugging face, fastapi, docker, embedding models",
+    "title": "AI Engineer",
+    "domain": "artificial intelligence"
+  },
+  {
+    "document": "Role: Platform Engineer | Domain: infrastructure | Description: Builds internal developer platforms that improve engineering productivity and reliability. | Required skills: kubernetes, docker, ci/cd, python, terraform, observability | Preferred skills: backstage, helm, argocd, prometheus, grafana",
+    "title": "Platform Engineer",
+    "domain": "infrastructure"
+  },
+  {
+    "document": "Role: Data Architect | Domain: data engineering | Description: Designs enterprise-scale data architecture, governance frameworks, and technology strategy for data platforms. | Required skills: data modeling, data warehousing, sql, cloud platforms, system design, data governance | Preferred skills: spark, kafka, snowflake, databricks, dbt, data mesh",
+    "title": "Data Architect",
+    "domain": "data engineering"
+  },
+  {
+    "document": "Role: Research Engineer / Applied Scientist | Domain: machine learning | Description: Conducts applied ML research and translates research findings into production systems. | Required skills: python, pytorch, deep learning, research, machine learning, statistics | Preferred skills: cuda, distributed training, transformers, hugging face, mlflow",
+    "title": "Research Engineer / Applied Scientist",
+    "domain": "machine learning"
+  },
+  {
+    "document": "Role: Security Engineer | Domain: security | Description: Designs and implements security controls, performs threat modeling, and responds to incidents. | Required skills: network security, iam, cryptography, linux, python, vulnerability assessment | Preferred skills: aws security, siem, penetration testing, zero trust, devsecops",
+    "title": "Security Engineer",
+    "domain": "security"
+  }
+]

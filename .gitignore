@@ -1,0 +1,24 @@
+cat << 'EOF' > .gitignore
+# Environments
+venv/
+.venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment Variables
+.env
+.env.local
+
+# Mac OS
+.DS_Store
+
+# Vector Store Binaries (must be generated via ingest.py on the server)
+app/rag/faiss_index/*.index
+
+# Logs
+*.log
+EOF
