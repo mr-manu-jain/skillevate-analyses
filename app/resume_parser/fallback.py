@@ -2,11 +2,12 @@
 
 import re
 import json
-import httpx
 import fitz  # pymupdf
 from pathlib import Path
 from dotenv import load_dotenv
-import os
+from langchain_core.runnables import RunnablePassthrough
+
+from app.llm.factory import get_ollama_completion_llm
 
 load_dotenv(dotenv_path=".env")
 
@@ -20,11 +21,6 @@ except ImportError:
     _retriever = None
     RAG_AVAILABLE = False
     print("[fallback] WARNING: skillevate-rag not installed. RAG unavailable.")
-
-# ── Ollama config ─────────────────────────────────────────────────────────────
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL", "phi3:mini")
-
 
 # ── Full Fallback — RAG + Ollama ──────────────────────────────────────────────
 
@@ -116,18 +112,10 @@ def gemini_full_fallback(pdf_path: str) -> dict:
     )
 
     try:
-        response = httpx.post(
-            f"{OLLAMA_BASE_URL}/api/generate",
-            json={
-                "model":  OLLAMA_MODEL,
-                "prompt": prompt,
-                "stream": False,
-                "options": {"temperature": 0, "num_predict": 1000},
-            },
-            timeout=120.0,
+        generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
+            options={"temperature": 0, "num_predict": 1000},
         )
-        response.raise_for_status()
-        raw = response.json().get("response", "").strip()
+        raw = generate.invoke(prompt).strip()
 
         # Strip markdown fences if model added them
         clean = re.sub(r'```json|```', '', raw).strip()
@@ -181,18 +169,10 @@ def gemini_enrich_skills(work_text: str, already_found: list) -> list:
     )
 
     try:
-        response = httpx.post(
-            f"{OLLAMA_BASE_URL}/api/generate",
-            json={
-                "model":  OLLAMA_MODEL,
-                "prompt": prompt,
-                "stream": False,
-                "options": {"temperature": 0, "num_predict": 300},
-            },
-            timeout=60.0,
+        generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
+            options={"temperature": 0, "num_predict": 300},
         )
-        response.raise_for_status()
-        raw   = response.json().get("response", "").strip()
+        raw = generate.invoke(prompt).strip()
         match = re.search(r'\[.*?\]', raw, re.DOTALL)
         if match:
             return [s.strip().lower() for s in json.loads(match.group(0)) if s]

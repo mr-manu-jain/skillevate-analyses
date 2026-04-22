@@ -2,12 +2,13 @@
 
 import re
 import json
-import httpx
 import pdfplumber
 import fitz
 from pathlib import Path
-import os
 from dotenv import load_dotenv
+from langchain_core.runnables import RunnablePassthrough
+
+from app.llm.factory import get_ollama_completion_llm
 
 load_dotenv(dotenv_path=".env")
 
@@ -22,11 +23,6 @@ except ImportError:
     _retriever = None
     RAG_AVAILABLE = False
     print("[jd_extractor] WARNING: skillevate-rag not installed. RAG unavailable.")
-
-# ── Ollama config ─────────────────────────────────────────────────────────────
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL", "phi3:mini")
-
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -101,6 +97,7 @@ OUTPUT FORMAT — return ONLY this JSON, no markdown, no explanation:
 {{
   "role_title": "job title here",
   "company": "company name or null",
+  "role_area": "broad category (e.g., Backend, Frontend, DevOps, Data Science, Data Engineering)",
   "required": ["skill1", "skill2"],
   "preferred": ["skill3", "skill4"]
 }}
@@ -302,20 +299,16 @@ def _extract_with_rag(jd_text: str) -> dict:
         jd_text=clean_jd[:3000],
     )
 
-    # Step 3 — run Ollama locally
+    # Step 3 — run Ollama locally (LangChain completion + LCEL)
     try:
-        response = httpx.post(
-            f"{OLLAMA_BASE_URL}/api/generate",
-            json={
-                "model":  OLLAMA_MODEL,
-                "prompt": prompt,
-                "stream": False,
-                "options": {"temperature": 0, "num_predict": 600, "stop": ["}\n", "```"]},
+        generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
+            options={
+                "temperature": 0,
+                "num_predict": 600,
+                "stop": ["}\n", "```"],
             },
-            timeout=60.0,
         )
-        response.raise_for_status()
-        raw = response.json().get("response", "").strip()
+        raw = generate.invoke(prompt).strip()
         return _parse_response(raw)
 
     except Exception as e:
@@ -369,6 +362,7 @@ def _parse_response(raw: str) -> dict:
 
         return {
             "role_title": data.get("role_title"),
+            "role_area":  data.get("role_area"),
             "company":    data.get("company"),
             "required":   clean_list(data.get("required",  [])),
             "preferred":  clean_list(data.get("preferred", [])),
@@ -382,6 +376,7 @@ def _empty_result(source: str) -> dict:
     return {
         "source":     source,
         "role_title": None,
+        "role_area":  None,
         "company":    None,
         "required":   [],
         "preferred":  [],

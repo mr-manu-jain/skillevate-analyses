@@ -2,8 +2,10 @@
 
 import re
 import json
-import ollama
+from langchain_core.messages import HumanMessage
 from rapidfuzz import fuzz
+
+from app.llm.factory import get_chat_groq, get_chat_ollama
 
 # ── Skill Ontology ────────────────────────────────────────────────────────────
 # Each skill maps to a normalized name + what it implies
@@ -104,10 +106,15 @@ ONTOLOGY = {
 # ── Main Entry Point ──────────────────────────────────────────────────────────
 
 def extract_skills(sections: dict, inference: str = "ollama") -> dict:
-    skills_text     = sections.get("skills", "")
+    """
+    Returns:
+        strong — claimed in skills section and evidenced in the resume body, or inferred
+        listed — claimed in skills section only, with no backing in the body
+    """
+    skills_text = sections.get("skills", "")
     experience_text = sections.get("experience", "")
-    projects_text   = sections.get("projects", "")
-    summary_text    = sections.get("summary", "")
+    projects_text = sections.get("projects", "")
+    summary_text = sections.get("summary", "")
 
     full_body = " ".join([experience_text, projects_text, summary_text]).lower()
     work_text = experience_text + "\n" + projects_text
@@ -123,64 +130,6 @@ def extract_skills(sections: dict, inference: str = "ollama") -> dict:
         inferred = []
 
     return _score_skills(listed_skills, ontology_hits, inferred, full_body)
-    """
-    Returns:
-    {
-        "strong": [...],   # claimed in skills section + found anywhere in resume body
-                           # OR inferred by Ollama from experience
-        "listed": [...]    # claimed in skills section but no backing found anywhere
-    }
-    """
-    skills_text     = sections.get("skills", "")
-    experience_text = sections.get("experience", "")
-    projects_text   = sections.get("projects", "")
-    summary_text    = sections.get("summary", "")
-
-    # Full resume body — everything except the skills section itself
-    full_body = " ".join([experience_text, projects_text, summary_text]).lower()
-    # Step 1 — Parse skills section
-    listed_skills = _parse_skills_section(skills_text)
-
-    # Step 2 — Ontology match across full body
-    ontology_hits = _ontology_match(full_body)
-
-    # Step 3 — Ollama inferred skills from experience + projects
-    work_text = experience_text + "\n" + projects_text
-    
-    if inference == "ollama":
-        inferred = _infer_with_ollama(work_text, listed_skills + ontology_hits)
-    elif inference == "groq":
-        inferred = _infer_with_groq(work_text, listed_skills + ontology_hits)
-    else:
-        inferred = []
-    
-    #inferred  = _infer_with_ollama(work_text, listed_skills + ontology_hits)
-
-    # Step 4 — Score and bucket
-    return _score_skills(listed_skills, ontology_hits, inferred, full_body)
-    """
-    Returns:
-    {
-        "strong": [...],   # in skills section + backed by experience OR inferred
-        "listed": [...]    # in skills section only, no backing found
-    }
-    """
-    skills_text     = sections.get("skills", "")
-    experience_text = sections.get("experience", "")
-    projects_text   = sections.get("projects", "")
-    work_text       = experience_text + "\n" + projects_text
-
-    # Step 1 — Extract from skills section
-    listed_skills = _parse_skills_section(skills_text)
-
-    # Step 2 — Ontology match across all sections
-    ontology_hits = _ontology_match(work_text)
-
-    # Step 3 — Ollama inferred skills from experience
-    inferred = _infer_with_ollama(experience_text, listed_skills + ontology_hits)
-
-    # Step 4 — Score and bucket
-    return _score_skills(listed_skills, ontology_hits, inferred)
 
 
 # ── Step 1: Parse Skills Section ──────────────────────────────────────────────
@@ -217,25 +166,6 @@ def _parse_skills_section(text: str) -> list:
             skills.append(_normalize(part))
 
     return list(dict.fromkeys(filter(None, skills)))
-
-
-    """
-    Extracts individual skills from the skills section.
-    Handles comma-separated, bullet-separated, and category: skills formats.
-    """
-    # Remove category labels like "Data Engineering & Big Data:"
-    text = re.sub(r'^[A-Z][^:]{2,40}:\s*', '', text, flags=re.MULTILINE)
-
-    # Split on common delimiters
-    raw = re.split(r'[,•\|/\n]+', text)
-
-    skills = []
-    for item in raw:
-        item = item.strip().strip('•-– \t')
-        if item and 2 <= len(item) <= 60:
-            skills.append(_normalize(item))
-
-    return list(dict.fromkeys(filter(None, skills)))  # dedupe, preserve order
 
 
 # ── Step 2: Ontology Matching ─────────────────────────────────────────────────
@@ -289,12 +219,12 @@ Respond ONLY with a valid JSON array of strings. Example: ["skill1", "skill2"]
 No explanation. No markdown. Just the JSON array."""
 
     try:
-        response = ollama.chat(
-            model="phi3:mini",
-            messages=[{"role": "user", "content": prompt}],
-            options={"temperature": 0, "num_predict": 200}
+        llm = get_chat_ollama()
+        response = llm.invoke(
+            [HumanMessage(content=prompt)],
+            options={"temperature": 0, "num_predict": 200},
         )
-        raw = response["message"]["content"].strip()
+        raw = (response.content or "").strip()
         # Extract JSON array even if model adds extra text
         match = re.search(r'\[.*?\]', raw, re.DOTALL)
         if match:
@@ -313,12 +243,9 @@ def _infer_with_groq(experience_text: str, already_found: list) -> list:
         return []
 
     try:
-        from groq import Groq
-        import os
         from dotenv import load_dotenv
-        load_dotenv(dotenv_path=".env")
 
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        load_dotenv(dotenv_path=".env")
 
         prompt = f"""You are a technical recruiter analyzing a work experience section.
 Identify skills that are clearly DEMONSTRATED through the work described,
@@ -333,14 +260,9 @@ Work Experience:
 Respond ONLY with a valid JSON array of strings. Example: ["skill1", "skill2"]
 No explanation. No markdown. Just the JSON array."""
 
-        response = client.chat.completions.create(
-            model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant"),
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0,
-            max_tokens=300,
-        )
-
-        raw   = response.choices[0].message.content.strip()
+        llm = get_chat_groq().bind(temperature=0, max_tokens=300)
+        response = llm.invoke([HumanMessage(content=prompt)])
+        raw = (response.content or "").strip()
         match = re.search(r'\[.*?\]', raw, re.DOTALL)
         if match:
             return [s.strip().lower() for s in json.loads(match.group(0)) if s]

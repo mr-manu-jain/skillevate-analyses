@@ -21,8 +21,15 @@ numpy==2.4.2
 # --- LLM Clients & Network ---
 ollama==0.6.1
 httpx==0.28.1
-groq==1.0.0
+# langchain-groq requires groq<1
+groq>=0.30.0,<1.0.0
 google-genai==1.64.0
+
+# --- LangChain ---
+langchain-core==1.2.8
+langchain==1.2.8
+langchain-ollama==1.0.1
+langchain-groq==1.1.2
 
 # --- UI & Demos (Optional, for local testing) ---
 streamlit==1.54.0

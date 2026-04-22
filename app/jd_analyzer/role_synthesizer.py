@@ -2,9 +2,11 @@
 
 import re
 import json
-import httpx
 import os
 from dotenv import load_dotenv
+from langchain_core.runnables import RunnablePassthrough
+
+from app.llm.factory import get_ollama_completion_llm
 
 load_dotenv(dotenv_path=".env")
 
@@ -18,11 +20,6 @@ except ImportError:
     _retriever = None
     RAG_AVAILABLE = False
     print("[role_synthesizer] WARNING: skillevate-rag not installed. RAG unavailable.")
-
-# ── Ollama config ─────────────────────────────────────────────────────────────
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL", "phi3:mini")
-
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -49,6 +46,7 @@ Be specific and realistic — what would actually appear in a real job posting.
 Return ONLY valid JSON, no explanation, no markdown:
 {{
   "role_title":     "normalized role title",
+  "role_area":      "broad category (e.g., Backend, Data Engineering, DevOps)",
   "company":        "company name or null if generic",
   "seniority":      "junior | mid | senior | staff | principal",
   "required":       ["skill1", "skill2"],
@@ -107,23 +105,16 @@ def synthesize_role(role: str) -> dict:
         skills_context=skills_context,
     )
 
-    # Step 3 — run Ollama locally
+    # Step 3 — run Ollama locally (LangChain completion + LCEL)
     try:
-        print(f"[role_synthesizer] Running Ollama ({OLLAMA_MODEL})...")
-        response = httpx.post(
-            f"{OLLAMA_BASE_URL}/api/generate",
-            json={
-                "model":  OLLAMA_MODEL,
-                "prompt": prompt,
-                "stream": False,
-                "options": {"temperature": 0.3, "num_predict": 1200},
-            },
-            timeout=90.0,
+        ollama_model = os.getenv("OLLAMA_MODEL", "phi3:mini")
+        print(f"[role_synthesizer] Running Ollama ({ollama_model})...")
+        generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
+            options={"temperature": 0.3, "num_predict": 1200},
         )
-        response.raise_for_status()
-        raw    = response.json().get("response", "").strip()
+        raw = generate.invoke(prompt).strip()
         result = _parse_response(raw, role)
-        result["inference_engine"] = f"rag+ollama-{OLLAMA_MODEL}"
+        result["inference_engine"] = f"rag+ollama-{ollama_model}"
         return result
 
     except Exception as e:
@@ -146,6 +137,7 @@ def _parse_response(raw: str, original_role: str) -> dict:
             "source":         "target_role",
             "original_input": original_role,
             "role_title":     data.get("role_title"),
+            "role_area":      data.get("role_area"),
             "company":        data.get("company"),
             "seniority":      data.get("seniority"),
             "domain_context": data.get("domain_context"),
@@ -162,6 +154,7 @@ def _empty_result(role: str) -> dict:
         "source":           "target_role",
         "original_input":   role,
         "role_title":       None,
+        "role_area":        None,
         "company":          None,
         "seniority":        None,
         "domain_context":   None,
