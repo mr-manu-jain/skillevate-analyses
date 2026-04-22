@@ -125,6 +125,7 @@ def analyze_gap(resume_skills: dict, jd_skills: dict) -> dict:
 
     return {
         "role_title":         jd_skills.get("role_title"),
+        "role_area":          jd_skills.get("role_area"),
         "company":            jd_skills.get("company"),
         "source":             jd_skills.get("source"),
         "matched_strong":     matched_strong,

@@ -97,6 +97,7 @@ OUTPUT FORMAT — return ONLY this JSON, no markdown, no explanation:
 {{
   "role_title": "job title here",
   "company": "company name or null",
+  "role_area": "broad category (e.g., Backend, Frontend, DevOps, Data Science, Data Engineering)",
   "required": ["skill1", "skill2"],
   "preferred": ["skill3", "skill4"]
 }}
@@ -301,9 +302,11 @@ def _extract_with_rag(jd_text: str) -> dict:
     # Step 3 — run Ollama locally (LangChain completion + LCEL)
     try:
         generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
-            temperature=0,
-            num_predict=600,
-            stop=["}\n", "```"],
+            options={
+                "temperature": 0,
+                "num_predict": 600,
+                "stop": ["}\n", "```"],
+            },
         )
         raw = generate.invoke(prompt).strip()
         return _parse_response(raw)
@@ -359,6 +362,7 @@ def _parse_response(raw: str) -> dict:
 
         return {
             "role_title": data.get("role_title"),
+            "role_area":  data.get("role_area"),
             "company":    data.get("company"),
             "required":   clean_list(data.get("required",  [])),
             "preferred":  clean_list(data.get("preferred", [])),
@@ -372,6 +376,7 @@ def _empty_result(source: str) -> dict:
     return {
         "source":     source,
         "role_title": None,
+        "role_area":  None,
         "company":    None,
         "required":   [],
         "preferred":  [],
