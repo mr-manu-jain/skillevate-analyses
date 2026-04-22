@@ -46,6 +46,7 @@ Be specific and realistic — what would actually appear in a real job posting.
 Return ONLY valid JSON, no explanation, no markdown:
 {{
   "role_title":     "normalized role title",
+  "role_area":      "broad category (e.g., Backend, Data Engineering, DevOps)",
   "company":        "company name or null if generic",
   "seniority":      "junior | mid | senior | staff | principal",
   "required":       ["skill1", "skill2"],
@@ -109,8 +110,7 @@ def synthesize_role(role: str) -> dict:
         ollama_model = os.getenv("OLLAMA_MODEL", "phi3:mini")
         print(f"[role_synthesizer] Running Ollama ({ollama_model})...")
         generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
-            temperature=0.3,
-            num_predict=1200,
+            options={"temperature": 0.3, "num_predict": 1200},
         )
         raw = generate.invoke(prompt).strip()
         result = _parse_response(raw, role)
@@ -137,6 +137,7 @@ def _parse_response(raw: str, original_role: str) -> dict:
             "source":         "target_role",
             "original_input": original_role,
             "role_title":     data.get("role_title"),
+            "role_area":      data.get("role_area"),
             "company":        data.get("company"),
             "seniority":      data.get("seniority"),
             "domain_context": data.get("domain_context"),
@@ -153,6 +154,7 @@ def _empty_result(role: str) -> dict:
         "source":           "target_role",
         "original_input":   role,
         "role_title":       None,
+        "role_area":        None,
         "company":          None,
         "seniority":        None,
         "domain_context":   None,

@@ -219,8 +219,11 @@ Respond ONLY with a valid JSON array of strings. Example: ["skill1", "skill2"]
 No explanation. No markdown. Just the JSON array."""
 
     try:
-        llm = get_chat_ollama().bind(temperature=0, num_predict=200)
-        response = llm.invoke([HumanMessage(content=prompt)])
+        llm = get_chat_ollama()
+        response = llm.invoke(
+            [HumanMessage(content=prompt)],
+            options={"temperature": 0, "num_predict": 200},
+        )
         raw = (response.content or "").strip()
         # Extract JSON array even if model adds extra text
         match = re.search(r'\[.*?\]', raw, re.DOTALL)

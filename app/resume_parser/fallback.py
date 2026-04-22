@@ -113,8 +113,7 @@ def gemini_full_fallback(pdf_path: str) -> dict:
 
     try:
         generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
-            temperature=0,
-            num_predict=1000,
+            options={"temperature": 0, "num_predict": 1000},
         )
         raw = generate.invoke(prompt).strip()
 
@@ -171,8 +170,7 @@ def gemini_enrich_skills(work_text: str, already_found: list) -> list:
 
     try:
         generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
-            temperature=0,
-            num_predict=300,
+            options={"temperature": 0, "num_predict": 300},
         )
         raw = generate.invoke(prompt).strip()
         match = re.search(r'\[.*?\]', raw, re.DOTALL)
