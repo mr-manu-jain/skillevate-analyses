@@ -36,7 +36,7 @@ async def parse_resume(
 
     return result
 
-@router.post("/parse/skills")
+@router.post("/resume/skills")
 async def parse_skills_only(
     file:      UploadFile = File(...),
     inference: str        = Form(default="ollama"),

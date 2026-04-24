@@ -302,10 +302,10 @@ def _extract_with_rag(jd_text: str) -> dict:
     # Step 3 — run Ollama locally (LangChain completion + LCEL)
     try:
         generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
+            format="json",
             options={
                 "temperature": 0,
-                "num_predict": 600,
-                "stop": ["}\n", "```"],
+                "num_predict": 1200,
             },
         )
         raw = generate.invoke(prompt).strip()
