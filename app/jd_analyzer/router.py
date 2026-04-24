@@ -14,6 +14,10 @@ from app.jd_analyzer.gap_analyzer import analyze_gap
 router = APIRouter()
 
 # ── Request / Response Models ─────────────────────────────────────────────────
+class DirectAnalyzeRequest(BaseModel):
+    resume_skills: dict  # The JSON from /parse/skills
+    jd_skills: dict      # The JSON from /extract
+
 
 class AnalyzeTextRequest(BaseModel):
     jd_text:       Optional[str] = None
@@ -23,7 +27,7 @@ class AnalyzeTextRequest(BaseModel):
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
-@router.post("/extract")
+@router.post("/jobs/skills")
 def extract_jd_skills(request: AnalyzeTextRequest):
     """
     Extract skills from JD text or synthesize from target role.
@@ -42,7 +46,7 @@ def extract_jd_skills(request: AnalyzeTextRequest):
 
     return result
 
-@router.post("/extract/pdf")
+@router.post("/jobs/skills/file")
 async def extract_jd_from_pdf(
     file:      UploadFile = File(...),
     inference: str        = Form(default="rag")
@@ -125,5 +129,21 @@ async def analyze_pdf(
 
     return {
         "jd_skills":    jd_skills,
+        "gap_analysis": gap
+    }
+
+@router.post("/analysis/gap")
+def analyze_direct(request: DirectAnalyzeRequest):
+    """
+    Lightning-fast gap analysis. 
+    Requires PRE-EXTRACTED resume_skills and jd_skills.
+    Uses zero LLM inference.
+    """
+    # Step 1: Pass the pre-extracted JSONs directly into the gap analyzer
+    gap = analyze_gap(request.resume_skills, request.jd_skills)
+
+    # Step 2: Return the standard response format
+    return {
+        "jd_skills":    request.jd_skills,
         "gap_analysis": gap
     }
