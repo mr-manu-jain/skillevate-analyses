@@ -107,7 +107,7 @@ def synthesize_role(role: str) -> dict:
 
     # Step 3 — run Ollama locally (LangChain completion + LCEL)
     try:
-        ollama_model = os.getenv("OLLAMA_MODEL", "phi3:mini")
+        ollama_model = os.getenv("OLLAMA_MODEL", "llama3.1")
         print(f"[role_synthesizer] Running Ollama ({ollama_model})...")
         generate = RunnablePassthrough() | get_ollama_completion_llm().bind(
             options={"temperature": 0.3, "num_predict": 1200},

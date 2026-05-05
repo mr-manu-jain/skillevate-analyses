@@ -3,7 +3,7 @@ Process-wide LangChain LLM instances built from environment variables.
 
 Env:
   OLLAMA_BASE_URL   — default http://localhost:11434
-  OLLAMA_MODEL      — default phi3:mini
+  OLLAMA_MODEL      — default llama3.1
   OLLAMA_TIMEOUT    — httpx timeout seconds for Ollama clients (default 180)
   GROQ_API_KEY      — Groq API key (also supported by Groq SDK / ChatGroq)
   GROQ_MODEL        — default llama-3.1-8b-instant
@@ -28,7 +28,7 @@ def _ollama_base_url() -> str:
 
 
 def _ollama_model() -> str:
-    return os.getenv("OLLAMA_MODEL", "phi3:mini")
+    return os.getenv("OLLAMA_MODEL", "llama3.1")
 
 
 def _ollama_client_timeout() -> float:
