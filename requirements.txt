@@ -33,8 +33,9 @@ langchain-groq==1.1.2
 
 # --- Database (MongoDB Atlas, async) ---
 motor==3.6.0
-# motor 3.6 pulls compatible pymongo; pin the [srv] extra so dnspython is included for SRV URIs
-pymongo[srv]>=4.9,<5.0
+# Motor 3.6 pins pymongo>=4.9,<4.10 — keep within that band (includes bson for models/repository).
+pymongo>=4.9,<4.10
+dnspython>=2.8.0
 
 # --- UI & Demos (Optional, for local testing) ---
 streamlit==1.54.0
