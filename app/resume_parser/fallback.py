@@ -13,14 +13,14 @@ load_dotenv(dotenv_path=".env")
 
 # ── RAG import ────────────────────────────────────────────────────────────────
 try:
-    from rag.retriever import Retriever
+    from app.rag.retriever import Retriever
     _retriever = Retriever()
     RAG_AVAILABLE = True
     print("[fallback] RAG retriever loaded.")
 except ImportError:
     _retriever = None
     RAG_AVAILABLE = False
-    print("[fallback] WARNING: skillevate-rag not installed. RAG unavailable.")
+    print("[fallback] WARNING: backend RAG retriever unavailable.")
 
 # ── Full Fallback — RAG + Ollama ──────────────────────────────────────────────
 
