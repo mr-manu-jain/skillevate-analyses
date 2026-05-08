@@ -13,16 +13,16 @@ from app.llm.factory import get_ollama_completion_llm
 load_dotenv(dotenv_path=".env")
 
 # ── RAG import ────────────────────────────────────────────────────────────────
-# skillevate-rag must be installed:  pip install -e ../skillevate-rag
+# Backend-internal RAG (no dependency on the separate skillevate-rag repo)
 try:
-    from rag.retriever import Retriever
+    from app.rag.retriever import Retriever
     _retriever = Retriever()
     RAG_AVAILABLE = True
     print("[jd_extractor] RAG retriever loaded.")
 except ImportError:
     _retriever = None
     RAG_AVAILABLE = False
-    print("[jd_extractor] WARNING: skillevate-rag not installed. RAG unavailable.")
+    print("[jd_extractor] WARNING: backend RAG retriever unavailable.")
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
 

@@ -12,7 +12,7 @@ Each index is saved as two files:
   faiss_index/roles.index   + roles_meta.json
 
 Usage:
-    from rag.store import SkillStore
+    from app.rag.store import SkillStore
     store = SkillStore()
     store.ingest_skills()     # one-time
     store.ingest_roles()
@@ -26,7 +26,7 @@ from typing import Any, Dict, List
 import faiss
 import numpy as np
 
-from rag.embedder import OllamaEmbedder
+from .embedder import OllamaEmbedder
 
 # Paths
 RAG_ROOT = Path(__file__).parent

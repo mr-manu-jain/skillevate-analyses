@@ -7,7 +7,7 @@ This is the only file the two services need to import directly.
 It abstracts the store and provides clean, typed methods.
 
 Usage:
-    from rag.retriever import Retriever
+    from app.rag.retriever import Retriever
 
     r = Retriever()
     skills_context = r.get_skills_context("apache kafka stream processing")
@@ -15,7 +15,7 @@ Usage:
 """
 
 from typing import List, Dict, Optional
-from rag.store import SkillStore
+from .store import SkillStore
 
 
 class Retriever:

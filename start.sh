@@ -2,6 +2,13 @@
 
 # Skillevate Analyses Backend - Startup Script
 # Boots the unified FastAPI service (parsing + JD analysis + analyses CRUD).
+# Also bootstraps local RAG from backend files: Ollama, embeddings model,
+# chat model, and one-time / idempotent vector index ingestion.
+#
+# Optional env:
+#   SKIP_RAG_BOOTSTRAP=1  — skip RAG / Ollama steps (API still starts).
+#   OLLAMA_BASE_URL       — default http://127.0.0.1:11434
+#                             (note: backend rag.embedder defaults to localhost unless you change it).
 
 set -euo pipefail
 
@@ -9,6 +16,9 @@ set -euo pipefail
 # requirements.txt, app/) resolve regardless of the caller's cwd.
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "$SCRIPT_DIR"
+
+OLLAMA_BASE_URL="${OLLAMA_BASE_URL:-http://127.0.0.1:11434}"
+OLLAMA_BASE_URL="${OLLAMA_BASE_URL%/}"
 
 echo "🚀 Skillevate Analyses Backend - Startup"
 echo "========================================"
@@ -63,6 +73,88 @@ echo "📥 Installing dependencies..."
 pip install -q --upgrade pip
 pip install -q -r requirements.txt
 
+bootstrap_rag() {
+    if [ "${SKIP_RAG_BOOTSTRAP:-0}" = "1" ]; then
+        echo "⏭️  SKIP_RAG_BOOTSTRAP=1 — skipping RAG / Ollama bootstrap."
+        return 0
+    fi
+
+    ollama_api_ok() {
+        curl -sf "${OLLAMA_BASE_URL}/api/tags" >/dev/null
+    }
+
+    if ! ollama_api_ok; then
+        if command -v ollama &>/dev/null; then
+            echo "🦙 Ollama not reachable at ${OLLAMA_BASE_URL} — starting \`ollama serve\` in the background..."
+            # Only auto-start when using default local URL (avoids spawning a second daemon blindly).
+            if [ "$OLLAMA_BASE_URL" = "http://127.0.0.1:11434" ] || [ "$OLLAMA_BASE_URL" = "http://localhost:11434" ]; then
+                ollama serve >/dev/null 2>&1 &
+                local waited=0
+                while ! ollama_api_ok; do
+                    if [ "$waited" -ge 90 ]; then
+                        echo " Error: Ollama did not become ready within 90s. Start it manually: ollama serve"
+                        exit 1
+                    fi
+                    sleep 1
+                    waited=$((waited + 1))
+                done
+                echo "   Ollama is up."
+            else
+                echo " Error: Ollama not reachable at ${OLLAMA_BASE_URL}. Start it there, then re-run."
+                exit 1
+            fi
+        else
+            echo " Error: Ollama is not running and the \`ollama\` CLI is not installed."
+            echo "   Install: https://ollama.com  then: ollama serve"
+            exit 1
+        fi
+    else
+        echo "🦙 Ollama OK at ${OLLAMA_BASE_URL}"
+    fi
+
+    # Ollama CLI uses OLLAMA_HOST (host:port, no scheme) for list/pull.
+    _ollama_host="${OLLAMA_BASE_URL#http://}"
+    _ollama_host="${_ollama_host#https://}"
+    export OLLAMA_HOST="$_ollama_host"
+
+    model_missing() {
+        # $1 = substring to match in `ollama list` output (e.g. nomic-embed-text, llama3.1)
+        ! ollama list 2>/dev/null | awk 'NR>1 {print $1}' | grep -qF "$1"
+    }
+
+    if model_missing "nomic-embed-text"; then
+        echo "⬇️  Pulling embedding model nomic-embed-text (needed for RAG)..."
+        ollama pull nomic-embed-text
+    else
+        echo "   Embedding model nomic-embed-text: already present."
+    fi
+
+    # Chat model for JD/resume paths (matches app/llm/factory.py default unless .env overrides).
+    CHAT_MODEL="$(python -c "
+from pathlib import Path
+import os
+from dotenv import load_dotenv
+p = Path(r'''$SCRIPT_DIR''') / '.env'
+load_dotenv(p) if p.exists() else None
+print(os.getenv('OLLAMA_MODEL', 'llama3.1'))
+")"
+    if model_missing "$CHAT_MODEL"; then
+        echo "⬇️  Pulling chat model ${CHAT_MODEL} (OLLAMA_MODEL from .env or default)..."
+        ollama pull "$CHAT_MODEL"
+    else
+        echo "   Chat model ${CHAT_MODEL}: already present."
+    fi
+
+    echo "🧠 RAG ingest from backend files (idempotent — skips already-built FAISS indexes)..."
+    # Run as a module so `from app.rag...` imports resolve correctly.
+    # When executing a file directly (python app/rag/ingest.py), Python's
+    # sys.path is rooted at `app/rag/`, which breaks the top-level `app.*`
+    # import path.
+    PYTHONPATH="$SCRIPT_DIR" python -m app.rag.ingest
+}
+
+bootstrap_rag
+
 # main.py / app.db.repository load .env via python-dotenv at import time, so we
 # don't need to source it here. We only need PORT/HOST for uvicorn flags.
 PORT="${PORT:-8001}"
@@ -77,6 +169,9 @@ echo "   - Local:    http://localhost:${PORT}"
 echo "   - API Docs: http://localhost:${PORT}/docs"
 echo "   - Health:   http://localhost:${PORT}/health"
 echo "   - Mongo DB: ${MONGO_DB}"
+if [ "${SKIP_RAG_BOOTSTRAP:-0}" != "1" ]; then
+    echo "   - RAG:      backend internal files (Ollama ${OLLAMA_BASE_URL})"
+fi
 echo ""
 echo "Press Ctrl+C to stop the service"
 echo ""

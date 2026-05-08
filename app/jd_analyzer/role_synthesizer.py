@@ -12,14 +12,14 @@ load_dotenv(dotenv_path=".env")
 
 # ── RAG import ────────────────────────────────────────────────────────────────
 try:
-    from rag.retriever import Retriever
+    from app.rag.retriever import Retriever
     _retriever = Retriever()
     RAG_AVAILABLE = True
     print("[role_synthesizer] RAG retriever loaded.")
 except ImportError:
     _retriever = None
     RAG_AVAILABLE = False
-    print("[role_synthesizer] WARNING: skillevate-rag not installed. RAG unavailable.")
+    print("[role_synthesizer] WARNING: backend RAG retriever unavailable.")
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -177,7 +177,7 @@ def _empty_result(role: str) -> dict:
 
 # # ── RAG import ────────────────────────────────────────────────────────────────
 # try:
-#     from rag.retriever import Retriever
+#     from app.rag.retriever import Retriever
 #     _retriever = Retriever()
 #     RAG_AVAILABLE = True
 #     print("[role_synthesizer] RAG retriever loaded.")
